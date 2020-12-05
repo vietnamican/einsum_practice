@@ -1,12 +1,14 @@
 import numpy as np
-from numpy.lib.stride_tricks import as_strided
+from torch import as_strided
 from torch import einsum
 import torch
+from torch import nn
 
 def to_tensor(*args):
     return (torch.Tensor(x) for x in args)
 
 def convolution_layer(m ,f):
+    m, f = to_tensor(m, f)
     m_h, m_w = m.shape[-2:]
     f_h, f_w = f.shape[-2:]
     batch_size = m.shape[0]
@@ -18,13 +20,19 @@ def convolution_layer(m ,f):
         (batch_size, Hout, Wout, m_c, f_h, f_w), 
         (batch_size, m_h, m_w, m_c, m_h, m_w)
     )
-    m_strided, f = to_tensor(m_strided.copy(), f)
+    m_strided, f = to_tensor(m_strided, f)
     result = einsum('bmncuv,kcuv->bkmn', m_strided, f)
     return result
 
+class EinConv2D(Conv2D):
+    def __init__(self, *args, *kwargs):
+        super(EinConv2D, self).__init__(*args, *kwargs)
+    def forward(self, input):
+        input = F.pad(input, self._reversed_padding_repeated_twice, mode=self.padding_mode)
+        return convolution_layer(input, self.weight)
+
 if __name__ == '__main__':
-    tensor = np.arange(18).reshape(2, 3, 3)
-    batch_tensor = as_strided(tensor, (2, *tensor.shape), (0, *tensor.strides))
-    filters = np.arange(16).reshape(2, 2, 2, 2)
-    result = convolution_layer(batch_tensor, fil)
-    print(result)
+    tensor = np.random.rand(100, 1, 28, 28)
+    filters = np.random.rand(10, 1, 5, 5)
+    result = convolution_layer(tensor, filters)
+    print(result.shape)
