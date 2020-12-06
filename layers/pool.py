@@ -31,5 +31,5 @@ class EinMaxPool2d(nn.MaxPool2d):
         return result
 
     def forward(self, x):
-        result = self.max_pool2d_layer_numpy(x)
+        result = self.max_pool2d_layer(x)
         return result

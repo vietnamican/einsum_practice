@@ -57,16 +57,17 @@ class Net(nn.Module):
         return F.log_softmax(x)
 
 from layers import EinConv2d, EinMaxPool2d, EinLinear
+from layers import PureEinConv2d
 from einops.layers.torch import Rearrange
 
 class Net2(nn.Module):
     def __init__(self):
         super(Net2, self).__init__()
-        self.conv1 = EinConv2d(1, 10, kernel_size=5)
+        self.conv1 = PureEinConv2d(1, 10, kernel_size=5)
         self.conv2 = EinConv2d(10, 20, kernel_size=5)
         self.conv2_drop = nn.Dropout2d()
-        self.fc1 = EinLinear(320, 50)
-        self.fc2 = EinLinear(50, 10)
+        self.fc1 = EinLinear(320, 1024)
+        self.fc2 = EinLinear(1024, 10)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -130,8 +131,16 @@ def test():
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
+from time import time
+
 if __name__ == '__main__':
     test()
+    total_training_time = 0
     for epoch in range(1, n_epochs + 1):
+        start = time()
         train(epoch)
+        end = time()
+        print('\nTraning process takes {} seconds'.format(end - start))
+        total_training_time += end - start
         test()
+    print('Total traning process takes {} seconds'.format(total_training_time))
