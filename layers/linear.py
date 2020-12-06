@@ -14,8 +14,4 @@ class EinLinear(nn.Linear):
         super(EinLinear, self).__init__(*args, **kwargs)
     def forward(self, x):
         result = einsum('bi,oi->bo', x, self.weight)
-        # print(x.shape)
-        # print(self.weight.shape)
-        # result = super().forward(x)
-        # print(result.shape)
         return result
