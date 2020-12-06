@@ -15,10 +15,11 @@ def convolution_layer(m ,f):
     m_c = m.shape[1]
     Hout = m_h - f_h + 1
     Wout = m_w - f_w + 1
+    stride_batch_size, stride_c, stride_h, stride_w = m.stride()
     m_strided = as_strided(
         m, 
         (batch_size, Hout, Wout, m_c, f_h, f_w), 
-        (batch_size, m_h, m_w, m_c, m_h, m_w)
+        (stride_batch_size, stride_h, stride_w, stride_c, stride_h, stride_w)
     )
     m_strided, f = to_tensor(m_strided, f)
     result = einsum('bmncuv,kcuv->bkmn', m_strided, f)

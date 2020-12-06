@@ -76,10 +76,11 @@ class EinConv2d(nn.Conv2d):
         m_c = m.shape[1]
         Hout = m_h - f_h + 1
         Wout = m_w - f_w + 1
+        stride_batch_size, stride_c, stride_h, stride_w = m.stride()
         m_strided = as_strided(
             m, 
             (batch_size, Hout, Wout, m_c, f_h, f_w), 
-            (batch_size, m_h, m_w, m_c, m_h, m_w)
+            (stride_batch_size, stride_h, stride_w, stride_c, stride_h, stride_w)
         )
         result = einsum('bmncuv,kcuv->bkmn', m_strided, f)
         return result
@@ -92,8 +93,6 @@ class EinConv2d(nn.Conv2d):
 class Net2(nn.Module):
     def __init__(self):
         super(Net2, self).__init__()
-        # self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
-        # self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
         self.conv1 = EinConv2d(1, 10, kernel_size=5)
         self.conv2 = EinConv2d(10, 20, kernel_size=5)
         self.conv2_drop = nn.Dropout2d()
@@ -101,8 +100,13 @@ class Net2(nn.Module):
         self.fc2 = nn.Linear(50, 10)
 
     def forward(self, x):
-        x = F.relu(F.max_pool2d(self.conv1(x), 2))
-        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
+        x = self.conv1(x)
+        x = F.max_pool2d(x, 2)
+        x = F.relu(x)
+        x = self.conv2(x)
+        x = self.conv2_drop(x)
+        x = F.max_pool2d(x, 2)
+        x = F.relu(x)
         x = Rearrange('b c h w -> b (c h w)')(x)
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
