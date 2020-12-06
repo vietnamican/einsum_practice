@@ -7,6 +7,9 @@ from torch import nn
 from einops import rearrange, reduce, asnumpy, parse_shape
 from einops.layers.torch import Rearrange, Reduce
 
+def to_tensor(*args):
+    return (torch.Tensor(x) for x in args)
+
 class EinMaxPool2d(nn.MaxPool2d):
     def __init__(self, *args, **kwargs):
         super(EinMaxPool2d, self).__init__(*args, **kwargs)

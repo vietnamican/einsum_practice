@@ -10,7 +10,6 @@ from einops.layers.torch import Rearrange, Reduce
 def to_tensor(*args):
     return (torch.Tensor(x) for x in args)
 
-
 class EinConv2d(nn.Conv2d):
     def __init__(self, *args, **kwargs):
         super(EinConv2d, self).__init__(*args, **kwargs)
