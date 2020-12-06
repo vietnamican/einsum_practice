@@ -28,6 +28,8 @@ def max_pool2d_layer_numpy(x):
     result = torch.amax(x_strided, dim=(-1, -2))
     return result
 
+
+
 # if __name__ == '__main__':
 #     tensor = torch.arange(36).reshape(1, 1, 6, 6)
 #     filters = torch.rand(10, 1, 5, 5)

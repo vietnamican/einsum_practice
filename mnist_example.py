@@ -56,7 +56,7 @@ class Net(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x)
 
-from layers import EinConv2d, EinMaxPool2d
+from layers import EinConv2d, EinMaxPool2d, EinLinear
 from einops.layers.torch import Rearrange
 
 class Net2(nn.Module):
@@ -65,8 +65,8 @@ class Net2(nn.Module):
         self.conv1 = EinConv2d(1, 10, kernel_size=5)
         self.conv2 = EinConv2d(10, 20, kernel_size=5)
         self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, 50)
-        self.fc2 = nn.Linear(50, 10)
+        self.fc1 = EinLinear(320, 50)
+        self.fc2 = EinLinear(50, 10)
 
     def forward(self, x):
         x = self.conv1(x)
