@@ -1,4 +1,4 @@
-files/*
-result/*
-.vscode/*
-**__pycache__**
+files/
+result/
+.vscode/
+__pycache__/
