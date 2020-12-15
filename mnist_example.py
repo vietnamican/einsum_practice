@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch
 import torchvision
 
+from torchsummary import summary
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using device {}'.format(device))
@@ -69,7 +71,7 @@ class Net2(nn.Module):
     def __init__(self):
         super(Net2, self).__init__()
         self.conv1 = PureEinConv2d(1, 10, kernel_size=5)
-        self.conv2 = EinConv2d(10, 20, kernel_size=5)
+        self.conv2 = PureEinConv2d(10, 20, kernel_size=5)
         self.conv2_drop = nn.Dropout2d()
         self.fc1 = EinLinear(320, 1024)
         self.fc2 = EinLinear(1024, 10)
@@ -90,7 +92,7 @@ class Net2(nn.Module):
 
 
 # Variables during training and testing
-network = Net2()
+network = Net()
 optimizer = optim.SGD(network.parameters(), lr=learning_rate,
                       momentum=momentum)
 train_losses = []
@@ -144,6 +146,7 @@ def test():
 
 
 if __name__ == '__main__':
+    summary(network, (1, 28, 28))
     test()
     total_training_time = 0
     for epoch in range(1, n_epochs + 1):

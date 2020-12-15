@@ -46,8 +46,9 @@ class PureEinConv2d(nn.Module):
         self.inplanes = inplanes
         self.outplanes = outplanes
         self.kernel_size = kernel_size
-        self.weight = torch.nn.init.xavier_normal_(torch.empty(
+        weight = nn.init.xavier_normal_(torch.empty(
             outplanes, inplanes, kernel_size, kernel_size)).to(device)
+        self.register_parameter('weight', nn.Parameter(weight))
 
     def convolution_layer(self, m):
         f = self.weight
