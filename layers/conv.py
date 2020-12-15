@@ -45,20 +45,21 @@ class EinConv2d(nn.Conv2d):
 
 
 class PureEinConv2d(nn.Module):
-    def __init__(self, inplanes, outplanes, kernel_size):
+    def __init__(self, inplanes, outplanes, kernel_size, bias=True):
         super(PureEinConv2d, self).__init__()
         self.inplanes = inplanes
         self.outplanes = outplanes
         self.kernel_size = kernel_size
         weight = nn.init.xavier_normal_(torch.empty(
             outplanes, inplanes, kernel_size, kernel_size)).to(device)
-        bias = nn.init.zeros_(torch.empty(outplanes))
         self.register_parameter('weight', nn.Parameter(weight))
-        self.register_parameter('bias', nn.Parameter(bias))
+        self.is_bias = bias
+        if self.is_bias:
+            _bias = nn.init.zeros_(torch.empty(outplanes))
+            self.register_parameter('bias', nn.Parameter(_bias))
 
     def convolution_layer(self, m):
         f = self.weight
-        b = self.bias
         m_h, m_w = m.shape[-2:]
         f_h, f_w = f.shape[-2:]
         batch_size = m.shape[0]
@@ -72,8 +73,10 @@ class PureEinConv2d(nn.Module):
             (stride_batch_size, stride_h, stride_w, stride_c, stride_h, stride_w)
         )
         result = einsum('bmncuv,kcuv->bkmn', m_strided, f)
-        b_repeated = repeat(b, 'k->b k m n', b=batch_size, m=Hout, n=Wout)
-        result += b_repeated
+        if self.is_bias:
+            b = self.bias
+            b_repeated = repeat(b, 'k->b k m n', b=batch_size, m=Hout, n=Wout)
+            result += b_repeated
 
         return result
 
