@@ -69,7 +69,7 @@ class Net2(nn.Module):
     def __init__(self):
         super(Net2, self).__init__()
         self.conv1 = PureEinConv2d(1, 10, kernel_size=5, bias=False)
-        self.conv2 = PureEinConv2d(10, 20, kernel_size=5, bias=False')
+        self.conv2 = PureEinConv2d(10, 20, kernel_size=5, bias=False)
         self.conv2_drop = nn.Dropout2d()
         self.fc1 = EinLinear(320, 1024)
         self.fc2 = EinLinear(1024, 10)
