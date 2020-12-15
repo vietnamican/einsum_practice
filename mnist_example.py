@@ -48,6 +48,8 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=batch_size_test, shuffle=True)
 
 # Design the structure of model
+
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -101,6 +103,8 @@ test_losses = []
 test_counter = [i*len(train_loader.dataset) for i in range(n_epochs + 1)]
 
 # Trainer
+
+
 def train(epoch, total_epoch):
     network.to(device).train()
     print('Train Epoch {} of {}'.format(epoch, total_epoch))
