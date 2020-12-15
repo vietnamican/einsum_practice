@@ -1,15 +1,17 @@
+from tqdm import tqdm
 from time import time
-from layers import EinConv2d, EinMaxPool2d, EinLinear
-from einops.layers.torch import Rearrange
+
 from layers import PureEinConv2d
 import torch.optim as optim
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
 import torchvision
-
 from torchsummary import summary
 
+from einops.layers.torch import Rearrange
+
+from layers import EinConv2d, EinMaxPool2d, EinLinear
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using device {}'.format(device))
@@ -101,7 +103,9 @@ test_counter = [i*len(train_loader.dataset) for i in range(n_epochs + 1)]
 # Trainer
 def train(epoch, total_epoch):
     network.to(device).train()
-    for batch_idx, (data, target) in enumerate(train_loader):
+    print('Train Epoch {} of {}'.format(epoch, total_epoch))
+    t = tqdm(train_loader)
+    for batch_idx, (data, target) in enumerate(t):
         data = data.to(device)
         target = target.to(device)
         optimizer.zero_grad()
@@ -110,10 +114,8 @@ def train(epoch, total_epoch):
         loss.backward()
         optimizer.step()
         if batch_idx % log_interval == 0:
-            print('Train Epoch: {} of {} [{}/{} ({:.0f}%)]\tLoss:{:.6f}'.format(
-                epoch, total_epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.item()))
             train_losses.append(loss.item())
+            t.set_postfix({'Loss': sum(train_losses)/len(train_losses)})
             train_counter.append(batch_idx*64 + (epoch + 1)
                                  * len(train_loader.dataset))
     torch.save(network.state_dict(), 'result/model.pth')
