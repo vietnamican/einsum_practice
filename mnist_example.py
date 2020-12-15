@@ -46,16 +46,14 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=batch_size_test, shuffle=True)
 
 # Design the structure of model
-
-
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
         self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
         self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, 50)
-        self.fc2 = nn.Linear(50, 10)
+        self.fc1 = nn.Linear(320, 1024)
+        self.fc2 = nn.Linear(1024, 10)
 
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
@@ -92,7 +90,7 @@ class Net2(nn.Module):
 
 
 # Variables during training and testing
-network = Net()
+network = Net2()
 optimizer = optim.SGD(network.parameters(), lr=learning_rate,
                       momentum=momentum)
 train_losses = []
@@ -120,8 +118,8 @@ def train(epoch, total_epoch):
             train_losses.append(loss.item())
             train_counter.append(batch_idx*64 + (epoch + 1)
                                  * len(train_loader.dataset))
-            torch.save(network.state_dict(), 'result/model.pth')
-            torch.save(optimizer.state_dict(), 'result/optimizer.pth')
+    torch.save(network.state_dict(), 'result/model.pth')
+    torch.save(optimizer.state_dict(), 'result/optimizer.pth')
 
 # Tester
 
