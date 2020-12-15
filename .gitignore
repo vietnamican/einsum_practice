@@ -1,3 +1,4 @@
 files/*
 result/*
 .vscode/*
+**__pycache__**
