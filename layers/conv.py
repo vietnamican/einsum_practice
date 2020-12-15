@@ -3,6 +3,9 @@ from torch import as_strided
 from torch import einsum
 from torch import nn
 
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 # from einops import rearrange, reduce, asnumpy, parse_shape
 from einops.layers.torch import Rearrange, Reduce
 
@@ -44,7 +47,7 @@ class PureEinConv2d(nn.Module):
         self.outplanes = outplanes
         self.kernel_size = kernel_size
         self.weight = torch.nn.init.xavier_normal_(torch.empty(
-            outplanes, inplanes, kernel_size, kernel_size)).cuda()
+            outplanes, inplanes, kernel_size, kernel_size)).to(device)
 
     def convolution_layer(self, m):
         f = self.weight

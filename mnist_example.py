@@ -9,6 +9,9 @@ import torch
 import torchvision
 
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using device {}'.format(device))
+
 # Setting hyperparameters
 n_epochs = 3
 batch_size_train = 64
@@ -98,19 +101,19 @@ test_counter = [i*len(train_loader.dataset) for i in range(n_epochs + 1)]
 # Trainer
 
 
-def train(epoch):
-    network.cuda().train()
+def train(epoch, total_epoch):
+    network.to(device).train()
     for batch_idx, (data, target) in enumerate(train_loader):
-        data = data.cuda()
-        target = target.cuda()
+        data = data.to(device)
+        target = target.to(device)
         optimizer.zero_grad()
         output = network(data)
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
         if batch_idx % log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss:{:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
+            print('Train Epoch: {} of {} [{}/{} ({:.0f}%)]\tLoss:{:.6f}'.format(
+                epoch, total_epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
             train_losses.append(loss.item())
             train_counter.append(batch_idx*64 + (epoch + 1)
@@ -122,13 +125,13 @@ def train(epoch):
 
 
 def test():
-    network.cuda().eval()
+    network.to(device).eval()
     test_loss = 0
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
-            data = data.cuda()
-            target = target.cuda()
+            data = data.to(device)
+            target = target.to(device)
             output = network(data)
             test_loss += F.nll_loss(output, target, size_average=False).item()
             pred = output.data.max(1, keepdim=True)[1]
@@ -145,7 +148,7 @@ if __name__ == '__main__':
     total_training_time = 0
     for epoch in range(1, n_epochs + 1):
         start = time()
-        train(epoch)
+        train(epoch, n_epochs)
         end = time()
         print('\nTraning process takes {} seconds'.format(end - start))
         total_training_time += end - start
