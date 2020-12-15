@@ -18,7 +18,9 @@ class EinConv2d(nn.Conv2d):
     def __init__(self, *args, **kwargs):
         super(EinConv2d, self).__init__(*args, **kwargs)
 
-    def convolution_layer(self, m, f):
+    def convolution_layer(self, m):
+        f = self.weight
+        b = self.bias
         m_h, m_w = m.shape[-2:]
         f_h, f_w = f.shape[-2:]
         batch_size = m.shape[0]
@@ -32,11 +34,13 @@ class EinConv2d(nn.Conv2d):
             (stride_batch_size, stride_h, stride_w, stride_c, stride_h, stride_w)
         )
         result = einsum('bmncuv,kcuv->bkmn', m_strided, f)
+        b_repeated = repeat(b, 'k->b k m n', b=batch_size, m=Hout, n=Wout)
+        result += b_repeated
         return result
 
     def forward(self, x):
         # x = F.pad(input, self._reversed_padding_repeated_twice, mode=self.padding_mode)
-        result = self.convolution_layer(x, self.weight)
+        result = self.convolution_layer(x)
         return result
 
 
@@ -54,9 +58,9 @@ class PureEinConv2d(nn.Module):
 
     def convolution_layer(self, m):
         f = self.weight
+        b = self.bias
         m_h, m_w = m.shape[-2:]
         f_h, f_w = f.shape[-2:]
-        b = self.bias
         batch_size = m.shape[0]
         m_c = m.shape[1]
         Hout = m_h - f_h + 1
