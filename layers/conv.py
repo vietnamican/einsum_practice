@@ -1,11 +1,10 @@
 import torch
 from torch import as_strided
-from torch import einsum
+# from torch import einsum
 from torch import nn
-
 # from einops.layers.torch import Rearrange, Reduce
 from einops import rearrange, reduce, asnumpy, parse_shape, repeat
-
+from opt_einsum import contract as einsum
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 

@@ -24,9 +24,12 @@ learning_rate = 0.01
 momentum = 0.5
 log_interval = 10
 
-random_seed = 1
+random_seed = 42
 torch.backends.cudnn.enabled = False
 torch.manual_seed(random_seed)
+if device == torch.device('cuda'):
+    torch.backends.cudnn.benchmark = True
+    torch.cuda.manual_seed(random_seed)
 
 # Loading data
 train_loader = torch.utils.data.DataLoader(
@@ -137,7 +140,7 @@ def test():
             data = data.to(device)
             target = target.to(device)
             output = network(data)
-            test_loss += F.nll_loss(output, target, size_average=False).item()
+            test_loss += F.nll_loss(output, target, reduction='sum').item()
             pred = output.data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).sum()
         test_loss /= len(test_loader.dataset)
