@@ -8,8 +8,6 @@ from opt_einsum import contract as einsum
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-
-
 def to_tensor(*args):
     return (torch.Tensor(x) for x in args)
 

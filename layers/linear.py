@@ -8,6 +8,7 @@ from einops.layers.torch import Rearrange, Reduce
 
 from opt_einsum import contract as einsum
 
+
 def to_tensor(*args):
     return (torch.Tensor(x) for x in args)
 
